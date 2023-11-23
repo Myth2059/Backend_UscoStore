@@ -13,21 +13,26 @@ class UserController extends Controller
     public function Login(Request $request){
 
         $response = ["msg"=>"","code"=>0];
-        $user = User::find($request->input('id'));
+        $user = User::find($request->input('id'));       
         if ($user) {
            if (Hash::check($request->input('password'),$user->password)) {
             $token = $user->createToken("");
             $response["code"]= 1;
             $response["msg"]=$token->plainTextToken;
+            $response["user"]=$user->name;
+            $response["id"] = $user->id;
+            $response["rol"]=$user->rol;
             return $response;
            }
            $response["code"]= 0;
            $response["msg"]="Usuario o contraseña invalidos";
+           return $response;
         }else{
             $response["code"]= 0;
-            $response["msg"]="Usuario o contraseña invalidos 2";
+            $response["msg"]="Usuario o contraseña invalidos";
+            return $response;
         }
- 
+  
 
     }
 

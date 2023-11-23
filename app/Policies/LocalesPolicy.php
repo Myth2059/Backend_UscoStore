@@ -13,7 +13,7 @@ class LocalesPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        
     }
 
     /**
