@@ -1,0 +1,53 @@
+use App\Models\NombreDelModelo;
+use Illuminate\Http\Request;
+
+class NombreDelControlador extends Controller
+{
+    public function index()
+    {
+        // Mostrar todos los registros
+        $data = NombreDelModelo::all();
+        return response()->json($data);
+    }
+
+    public function store(Request $request)
+    {
+        // Crear un nuevo registro
+        $data = $request->all();
+        NombreDelModelo::create($data);
+        return response()->json(['message' => 'Registro creado con éxito']);
+    }
+
+    public function show($id)
+    {
+        // Mostrar un registro por ID
+        $data = NombreDelModelo::findOrFail($id);
+        return response()->json($data);
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Actualizar un registro por ID
+        $data = $request->all();
+        $registro = NombreDelModelo::findOrFail($id);
+        $registro->update($data);
+        return response()->json(['message' => 'Registro actualizado con éxito']);
+    }
+
+    public function destroy($id)
+    {
+        // Eliminar un registro por ID
+        $registro = NombreDelModelo::findOrFail($id);
+        $registro->delete();
+        return response()->json(['message' => 'Registro eliminado con éxito']);
+    }
+}
+
+------------------------------------------------------------------
+use App\Http\Controllers\NombreDelControlador;
+
+Route::get('/nombre-del-recurso', [NombreDelControlador::class, 'index']);
+Route::post('/nombre-del-recurso', [NombreDelControlador::class, 'store']);
+Route::get('/nombre-del-recurso/{id}', [NombreDelControlador::class, 'show']);
+Route::put('/nombre-del-recurso/{id}', [NombreDelControlador::class, 'update']);
+Route::delete('/nombre-del-recurso/{id}', [NombreDelControlador::class, 'destroy']);
