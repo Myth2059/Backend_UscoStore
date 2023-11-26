@@ -13,7 +13,11 @@ class UserController extends Controller
     public function Login(Request $request){
 
         $response = ["msg"=>"","code"=>0];
-        $user = User::find($request->input('id'));       
+        try {
+            //code...
+     
+        $user = User::find($request->input('id'));
+
         if ($user) {
            if (Hash::check($request->input('password'),$user->password)) {
             $token = $user->createToken("");
@@ -32,6 +36,11 @@ class UserController extends Controller
             $response["msg"]="Usuario o contraseña invalidos";
             return $response;
         }
+    } catch (\Throwable $th) {
+        $response["msg"]=$th->getMessage();
+        $response["code"]=0;
+        return $response;
+    }
   
 
     }
@@ -61,7 +70,7 @@ class UserController extends Controller
                 return ["msg"=>"Usuario creado correctamente","code"=>1];
     
             } catch (ValidationException  $e) {
-                 return ['msg'=>'Error de Validacion','errors'=>$e->errors()];
+                 return ['msg'=>$e->errors(),'errors'=>$e->errors()];
               
             }
           
