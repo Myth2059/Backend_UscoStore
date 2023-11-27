@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\LocalesCollection;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -13,8 +14,7 @@ class UserController extends Controller
     public function Login(Request $request){
 
         $response = ["msg"=>"","code"=>0];
-        try {
-            //code...
+        try {         
      
         $user = User::find($request->input('id'));
 
@@ -79,6 +79,42 @@ class UserController extends Controller
         }
    
 
+    }
+
+    public function singleUpdate(Request $request)
+    {
+       try {     
+        
+         $user = User::find($request->input('id'));
+       
+        // Verificar si el registro existe
+        if (!$user) {
+            return ['msg' => 'Usuario no encontrado', 'code' => 0];
+        }
+        $datosActualizados = [];
+
+        $key = "";
+
+        // Iterar sobre los datos recibidos en la solicitud
+        foreach ($request->all() as $campo => $valor) {
+            // Asegurarse de que el campo exista en el modelo
+            if (in_array($campo, $user->getFillable())) {
+                $datosActualizados[$campo] = $valor;
+                $key = ucfirst($campo);
+            }
+        }
+
+        // Actualizar los campos con los datos recibidos
+       $total = $user->update($datosActualizados);
+       if ($total == 0) {
+        return ['msg' => 'No se modifico nada', 'code' => 0];
+       }
+
+        return ['msg' => $key . ' actualizado correctamente', 'code' => 1];
+           //code...
+       } catch (Exception $e) {
+        return ['msg' => $e->__toString() , 'code' => 0];
+       }
     }
 
 

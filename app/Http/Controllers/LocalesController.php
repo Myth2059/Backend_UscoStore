@@ -6,7 +6,9 @@ use App\Models\Locales;
 use App\Http\Requests\StoreLocalesRequest;
 use App\Http\Requests\UpdateLocalesRequest;
 use App\Http\Resources\LocalesCollection;
+use App\Models\DeleteLog;
 use App\Models\User;
+use Exception;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 
@@ -68,7 +70,7 @@ class LocalesController extends Controller
                     'estado' => 'required|string',
                     'categoria' => 'required|string',
                     'subcategoria' => 'required|string',
-                    'imgUrl' => 'required|string',
+                    'imgurl' => 'required|string',
                     'detalles' => 'required|string'
                 ]);
 
@@ -79,7 +81,7 @@ class LocalesController extends Controller
                     'estado' => $request->input('estado'),
                     'categoria' => $request->input('categoria'),
                     'subcategoria' => $request->input('subcategoria'),
-                    'imgUrl' => $request->input('imgUrl'),
+                    'imgurl' => $request->input('imgurl'),
                     'detalles' => $request->input('detalles')
                 ]);
 
@@ -91,7 +93,50 @@ class LocalesController extends Controller
             return ["msg" => "No existe el propietario", "code" => 0];
         }
     }
+    
+    public function singleUpdate(Request $request)
+    {
+       try {     
+        
+        $request->validate([
+            'user_id' => 'integer',
+            'nombre' => 'string',
+            'ubicacion' => 'integer',
+            'estado' => 'string',
+            'categoria' => 'string',
+            'subcategoria' => 'string',
+            'imgUrl' => 'string',
+            'detalles' => 'string'
+        ]);
 
+        $local = Locales::find($request->input('id'));
+       
+        // Verificar si el registro existe
+        if (!$local) {
+            return ['msg' => 'Local no encontrado', 'code' => 0];
+        }
+        $datosActualizados = [];
+
+        $key = "";
+
+        // Iterar sobre los datos recibidos en la solicitud
+        foreach ($request->all() as $campo => $valor) {
+            // Asegurarse de que el campo exista en el modelo
+            if (in_array($campo, $local->getFillable())) {
+                $datosActualizados[$campo] = $valor;
+                $key = ucfirst($campo);
+            }
+        }
+
+        // Actualizar los campos con los datos recibidos
+        $local->update($datosActualizados);
+
+        return ['msg' => $key . ' actualizado correctamente', 'code' => 1];
+           //code...
+       } catch (Exception $e) {
+        return ['msg' => $e , 'code' => 0];
+       }
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -101,6 +146,43 @@ class LocalesController extends Controller
     public function store(StoreLocalesRequest $request)
     {
         // Implementar lógica para almacenar recursos
+    }
+
+    public function deleteLocal(Request $request){
+       
+        try {
+            $request->validate([
+                'id' => 'required|integer',
+                'admin_id' => 'required|integer',
+            ]);
+            
+        $local = Locales::find($request->input('id'));
+        
+        if ($local) {
+          $result= $local->delete();
+          
+            if ($result > 0) {
+              $resultCreate =  DeleteLog::create([
+                    "admin_id" => $request->input('admin_id'),
+                    'local_id'=> $local->id,
+                   'propietario_id'=>$local->user_id,
+                   'nombre_local'=>$local->nombre
+                ]);
+                return ["msg" => "Se elimino el local ".$local->nombre, "code" => 1];
+            }else{
+                
+                return ["msg" => "No se pudo eliminar ".$local->nombre, "code" => 0];
+            }
+            
+        
+        }else{
+            return ["msg" => "No existe el local", "code" => 0];
+        }
+            //code...
+        } catch (Exception $e) {
+            return ["msg" => $e->getMessage(), "code" => 0];
+        }
+
     }
 
     /**

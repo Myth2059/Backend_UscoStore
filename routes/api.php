@@ -27,3 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     Route::post('/login',[UserController::class,'Login']);
     Route::post('/createlocal',[LocalesController::class,'CreateLocal']);
     Route::get('/getlocal/{id}',[LocalesController::class,'findLocal']);
+    Route::put('/updatelocal',[LocalesController::class,'singleUpdate']);
+    Route::put('/updateuser',[UserController::class,'singleUpdate']);
+    Route::delete('/deletelocal',[LocalesController::class,'deleteLocal']);
+
