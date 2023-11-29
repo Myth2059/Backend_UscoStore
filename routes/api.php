@@ -22,12 +22,21 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-    Route::get('/locales', [LocalesController::class, 'index']);
+Route::middleware(['checkRole'])->group(function (){    
+    Route::delete('/deletelocal',[LocalesController::class,'deleteLocal']);
     Route::post('/createuser',[UserController::class,'CreateUser']);
-    Route::post('/login',[UserController::class,'Login']);
     Route::post('/createlocal',[LocalesController::class,'CreateLocal']);
-    Route::get('/getlocal/{id}',[LocalesController::class,'findLocal']);
+});
+
+Route::middleware(['checkUpdate'])->group(function (){   
+
     Route::put('/updatelocal',[LocalesController::class,'singleUpdate']);
     Route::put('/updateuser',[UserController::class,'singleUpdate']);
-    Route::delete('/deletelocal',[LocalesController::class,'deleteLocal']);
+    Route::get('/locales', [LocalesController::class, 'index']);  
+});
+
+ 
+    Route::post('/login',[UserController::class,'Login']);    
+    Route::get('/getlocal/{id}',[LocalesController::class,'findLocal']);
+ 
 
